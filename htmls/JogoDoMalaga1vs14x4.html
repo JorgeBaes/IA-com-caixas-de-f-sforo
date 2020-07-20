@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Jogo do Malaga</title>
+    <style>
+        body {
+            background: rgb(255, 255, 255);
+        }
+    </style>
+</head>
+
+<body>
+    <canvas></canvas>
+
+    <script>
+
+
+
+        ///////CCCCCCC/////AAAAAAA////////NN/////NN/////VV/////////VVVV///////AAA////////SSSSSSSS////////
+        ///////CC//////////A/////AA///////NN/NN//NN//////VVV/////VVV////////AA//AAA///////SS/////////////
+        ///////CC/////////AAAA////AAA ////NN//NNNNN///////VVVV//VVVVV//////AA/////AAA/////SSSSSSS////////
+        ///////CC/////////AAAAAAAAAAA/////NN////NN///////////VVVVV////////AAAAAAAAAAAA/////////SS///////
+        ///////CCCCCCC///AAAA//////AAA////NN////NN///////////VVVV////////AAA/////////AAA/SSSSSSSS///////  
+
+
+
+
+
+        canvas = document.querySelector('canvas')
+
+        canvas.width = window.innerWidth - 20
+        canvas.height = window.innerHeight - 20
+        canvas.style.background = 'rgba(0,0,255,0.15)'  // DEFINE A COR DE FUNDO DO CANVAS
+
+        var c = canvas.getContext('2d')                  // CONTEXTO DO CANVAS = 2d
+
+        standart = `rgba(200,20,255,1)`;
+        c.textBaseline = 'middle'
+        c.textAlign = 'center'
+        const ch = canvas.height
+        const cw = canvas.width
+        const cd = ch > cw ? ch : cw
+        const cr = ch < cw ? ch : cw
+        const chU = ch / 1000
+        const cwU = cw / 1000
+
+        document.addEventListener('mousemove', onMouseUpdate, false);
+        document.addEventListener('mouseenter', onMouseUpdate, false);
+        var posY = null;
+        var posX = null;
+        function onMouseUpdate(e) {
+            posX = e.pageX;
+            posY = e.pageY;
+        }
+
+        slide = function (x, y, w, h, min = 1, max = 10, incr = 1) {
+            this.x = x
+            this.y = y
+            this.h = h
+            this.w = w
+            this.max = max
+            this.min = min
+            this.incr = incr
+            this.posi = 0
+            this.tofix = 0
+
+            this.color = 'rgba(255,255,255,1)'
+            this.changeColor = 'rgba(100,0,255,0.2)'
+            this.slideColor = 'rgba(0,0,0,1)'
+            this.buttonColor = 'rgba(255,160,0,1)'
+
+            this.string = 'slider'
+            this.stringFont = `${this.w / 12}px Verdana`
+            this.stringColor = 'black'
+
+            this.disableMaxMin = false
+            this.disableButNum = false
+
+            this.show = function (mX, mY) {
+                c.fillStyle = this.color
+                c.beginPath()
+                c.arc(this.x + this.h / 2, this.y + this.h * 0.5, this.h * 0.5, 1 / 2 * Math.PI, Math.PI * 3 / 2);
+                c.arc(this.x + this.w - this.h / 2, this.y + this.h * 0.5, this.h * 0.5, 3 / 2 * Math.PI, Math.PI / 2);
+                c.fill()
+
+                if (mX && mY) {
+                    c.fillStyle = this.changeColor
+                    if (this.x < mX && mX < this.x + this.w / 2 && this.y < mY && mY < this.y + this.h) {
+                        c.fillRect(this.x + this.h / 2, this.y, this.w / 2 - this.h / 2, this.h)
+                        c.beginPath()
+                        c.arc(this.x + this.h / 2, this.y + this.h * 0.5, this.h * 0.5, 1 / 2 * Math.PI, Math.PI * 3 / 2);
+                        c.fill()
+                    }
+                    if (this.x + this.w / 2 < mX && mX < this.x + this.w && this.y < mY && mY < this.y + this.h) {
+                        c.fillRect(this.x + this.w / 2, this.y, this.w / 2 - this.h / 2, this.h)
+                        c.beginPath()
+                        c.arc(this.x + this.w - this.h / 2, this.y + this.h * 0.5, this.h * 0.5, 3 / 2 * Math.PI, Math.PI / 2);
+                        c.fill()
+                    }
+                }
+
+                c.fillStyle = this.stringColor
+                c.font = this.stringFont
+
+                c.fillStyle = this.slideColor
+                c.fillRect(this.x + this.w * 0.2, this.y + this.h * 0.7, this.w * 0.6, this.h * 0.1) // RECTANGULO DE DENTRO
+
+                c.beginPath() // BOLINHA DO SLIDER
+                c.arc(this.x + this.w * 0.2 + (this.w * 0.6) / ((this.max - this.min) / this.incr) * this.posi, this.y + this.h * 0.75, this.h * 0.15, 0, 2 * Math.PI);
+                c.fillStyle = this.buttonColor
+                c.fill()
+
+                c.textBaseline = 'middle'
+                c.textAlign = 'center'
+                c.fillStyle = this.stringColor
+                c.font = this.stringFont
+                let stri = this.string + ' ' + String(this.getValue().toFixed(this.tofix))
+                c.fillText(stri, this.x + this.w / 2, this.y + this.h / 3) // STRING
+                c.font = `${this.h * 0.3}px Verdana`
+                if (this.tofix == 0 && !this.disableButNum) { c.fillText(this.getValue().toFixed(this.tofix), this.x + this.w * 0.2 + (this.w * 0.6) / ((this.max - this.min) / this.incr) * this.posi, this.y + this.h * 0.75) }
+
+                if (!this.disableMaxMin) {
+                    c.font = `${this.w / 18}px Verdana`
+                    c.fillText(this.min.toFixed(0), this.x + this.w * 0.2 - this.h * 0.45, this.y + this.h * 0.77)
+                    c.fillText(this.max.toFixed(0), this.x + this.w * 0.8 + this.h * 0.45, this.y + this.h * 0.77)
+                }
+            }
+            this.setValue = function (val) {
+                if (this.min <= val && val <= this.max) {
+                    this.posi = (val - this.min) / this.incr
+                }
+            }
+
+            this.incrementar = function () {
+                if (this.incr + this.posi * this.incr + this.min <= this.max) {
+                    this.posi++
+                } else {
+                    this.posi = (this.max - this.min) / this.incr
+                }
+            }
+            this.decrementar = function () {
+                if (this.posi * this.incr + this.min - this.incr >= this.min) {
+                    this.posi--
+                } else {
+                    this.posi = 0
+                }
+            }
+
+            this.getValue = function () {
+                return this.min + this.incr * this.posi
+            }
+
+            this.checkMouseDown = function (mX, mY) {
+                if (this.x < mX && mX < this.x + this.w / 2 && this.y < mY && mY < this.y + this.h)
+                    this.decrementar()
+                if (this.x + this.w / 2 < mX && mX < this.x + this.w && this.y < mY && mY < this.y + this.h)
+                    this.incrementar()
+            }
+        }//checkMouseDown
+
+        button = function (x, y, w, h) {
+            this.x = x
+            this.y = y
+            this.w = w
+            this.h = h
+            this.color = 'rgba(110, 183, 255,1)'
+            this.string = 'button'
+            this.stringFont = `${this.w / 10}px Verdana`;
+            this.fontColor = 'black'
+            this.changeColor = 'rgba(100, 100, 255,1)'
+            this.ableChangeColor = true
+
+            this.show = function (mX, mY) {
+                c.fillStyle = this.color
+                if (mX, mY) {
+                    if (this.checkMouseOver(mX, mY) && this.ableChangeColor)
+                        c.fillStyle = this.changeColor
+                    else
+                        c.fillStyle = this.color
+                }
+
+                c.beginPath();
+                c.arc(this.x + this.h / 2, this.y + this.h / 2, this.h / 2, 1 / 2 * Math.PI, 3 / 2 * Math.PI)
+                c.arc(this.x + this.w - this.h / 2, this.y + this.h / 2, this.h / 2, 3 / 2 * Math.PI, 1 / 2 * Math.PI)
+                c.fill()
+
+                c.textBaseline = 'middle'
+                c.textAlign = 'center'
+                c.font = this.stringFont;
+                c.fillStyle = this.fontColor
+                c.fillText(this.string, this.x + this.w / 2, this.y + this.h / 2)
+            }
+
+            this.checkMouseOver = function (mX, mY) {
+                return this.x <= mX && mX <= this.x + this.w && this.y <= mY && mY <= this.y + this.h
+            }
+
+        }//checkMouseOver
+
+        panel = function (x, y, w, h) {
+            this.x = x
+            this.y = y
+            this.w = w
+            this.h = h
+
+            this.objects = []
+            this.gradX = 1000
+            this.gradY = 1000
+
+            this.changeColor = 'rgba(165, 223, 165,1)'
+            this.color = 'rgba(130, 180, 255,0.5)'
+
+            this.show = function (mX, mY) {
+                c.fillStyle = this.color
+                c.fillStyle = this.color
+                if (mX, mY) {
+                    if (this.mouseOver(mX, mY))
+                        c.fillStyle = this.changeColor
+                    else
+                        c.fillStyle = this.color
+                }
+
+                c.fillRect(this.x, this.y, this.w, this.h)
+
+                for (let i in this.objects) {
+                    if (this.objects[i][3] == 'center' && this.objects[i][0].w && this.objects[i][0].h) {
+                        this.objects[i][0].x = this.objects[i][1] + this.x - this.objects[i][0].w / 2
+                        this.objects[i][0].y = this.objects[i][2] + this.y - this.objects[i][0].h / 2
+                    } else if (this.objects[i][3] == 'bottomRight' && this.objects[i][0].w && this.objects[i][0].h) {
+                        this.objects[i][0].x = this.objects[i][1] + this.x - this.objects[i][0].w
+                        this.objects[i][0].y = this.objects[i][2] + this.y - this.objects[i][0].h
+                    } else if (this.objects[i][3] == 'bottomLeft' && this.objects[i][0].h) {
+                        this.objects[i][0].x = this.objects[i][1] + this.x
+                        this.objects[i][0].y = this.objects[i][2] + this.y - this.objects[i][0].h
+                    } else if (this.objects[i][3] == 'topRight' && this.objects[i][0].w) {
+                        this.objects[i][0].x = this.objects[i][1] + this.x - this.objects[i][0].w
+                        this.objects[i][0].y = this.objects[i][2] + this.y
+                    } else {
+                        this.objects[i][0].x = this.objects[i][1] + this.x
+                        this.objects[i][0].y = this.objects[i][2] + this.y
+                    }
+                    this.objects[i][0].show(mX, mY)
+                }
+            }
+
+            this.addObject = function (object, x, y, style = 'normal') {
+                if (object.w <= this.w && object.h <= this.h) {
+                    this.objects.push([object, x / this.gradX * this.w, y / this.gradY * this.h, style])
+                }
+            }
+
+            this.mouseOver = function (mX, mY) {
+                return this.x <= mX && mX <= this.x + this.w && this.y <= mY && mY <= this.y + this.h
+            }
+        }
+
+        let pan = new panel(cw / 2 - cr * 0.35, ch / 2 - cr * 0.35, cr * 0.7, cr * 0.7)
+
+        var m = matrizInicial(4)
+
+
+
+        objMoveis = [];
+        buttons = [];
+        slides = [];
+
+        for (let i = 0; i < 16; i++)buttons.push(new button(0, 0, pan.w / 5, pan.h / 5))
+        //objMoveis.push(pan)
+        buttons.push()
+        slides.push()
+
+        butJogNov = new button(cw / 2 - cr / 2, ch * 0.08 - chU * 45, cr, chU * 90)
+        butJogNov.string = 'Jogar Novamente'
+        butJogNov.stringFont = chU * 70 + 'px Verdana'
+        butJogNov.color = 'rgba(180,255,0,1)'
+        butJogNov.changeColor = 'rgba(140,255,0,1)'
+
+        for (let i in buttons) {
+            buttons[i].string = ' '
+            if (m[i] == 2) buttons[i].string = '▽'
+            if (m[i] == 1) buttons[i].string = '▲'
+            if (m[i] == 2) buttons[i].fontColor = 'white'
+            buttons[i].stringFont = `${buttons[i].w / 2}px Verdana`
+            buttons[i].color = 'rgba(150,150,255,1)'
+            pan.addObject(buttons[i], 250 * (i % 4) + 250 / 2, 250 * (~~(i / 4) % 4) + 250 / 2, 'center')
+        }
+        function atualizarTab(m) {
+            for (let i in buttons) {
+                buttons[i].string = ' '
+                if (m[i] == 2) {
+                    buttons[i].string = '▽'
+                    if (buttons[i].fontColor != 'blue') buttons[i].fontColor = 'white'
+                }
+                if (m[i] == 1) {
+                    buttons[i].string = '▲'
+                    buttons[i].fontColor = 'black'
+                }
+            }
+        }
+        function posiFutura(pos, lance, jog) {
+            if (jog == 1) {
+                if (lance == 1) return parseInt(pos) - 5
+                if (lance == 2) return parseInt(pos) - 4
+                if (lance == 3) return parseInt(pos) - 3
+            }
+            if (jog == 2) {
+                if (lance == 1) return parseInt(pos) + 3
+                if (lance == 2) return parseInt(pos) + 4
+                if (lance == 3) return parseInt(pos) + 5
+            }
+        }
+        function todasJogadasPossiveisADAP(matriz, jog) {
+            const n = Math.sqrt(matriz.length)
+            var jogadaspossiveis = []
+
+            for (let pos in matriz) {
+                if (matriz[pos] == jog) {
+                    for (let lance = 1; lance <= 3; lance++) {
+                        if (jogadaPossivel(matriz, pos, lance, jog)) jogadaspossiveis.push([pos, posiFutura(pos, lance, jog), jog])
+                    }
+                }
+            }
+            return jogadaspossiveis
+        }
+        function fazerJogadaADAP(m, butPress, i, jog) {
+            m[butPress] = 0
+            m[i] = jog
+            return m
+        }
+        function arrayEqual(arr1, arr2) {
+            return arr1.length === arr2.length && arr1.every((el, i) => el == arr2[i]);
+        }
+        function printTab(matriz, table = false) {
+            const n = Math.sqrt(matriz.length)
+
+            if (table) {
+                var list = []
+                var listaux = []
+                for (let i in matriz) {
+                    listaux.push(matriz[i])
+                    if ((i + 1) % n == 0) {
+                        list.push(listaux)
+                        listaux = []
+                    }
+                }
+                console.table(list)
+
+            } else {
+                strings = ['', '', '', '']
+                for (let i = 0; i < n; i++) {
+                    for (let j = 0; j < n; j++) {
+                        strings[i] += `${matriz[i * 3 + j]} `
+                    }
+                    console.log(strings[i])
+                }
+            }
+
+        }
+        function matrizInicial(n) {
+            var list = []
+            for (let i = 0; i < n ** 2; i++) {
+                if (i < n) { list.push(2) } else if (i > n ** 2 - n - 1) { list.push(1) } else { list.push(0) }
+            }
+            return list
+        }
+        function jogadorVenceu(matriz, prio) {
+            const n = Math.sqrt(matriz.length)
+            if (prio == 1) {
+                if (todasJogadasPossiveis(matriz, 2).length == 0) return [true, 1]
+                for (let i = 0; i < n; i++) {
+                    if (matriz[i] == 1) return [true, 1]
+                }
+                ///
+                if (todasJogadasPossiveis(matriz, 1).length == 0) return [true, 2]
+                for (let i = n ** 2 - n; i < n ** 2; i++) {
+                    if (matriz[i] == 2) return [true, 2]
+                }
+            }
+            if (prio == 2) {
+                if (todasJogadasPossiveis(matriz, 1).length == 0) return [true, 2]
+                for (let i = n ** 2 - n; i < n ** 2; i++) {
+                    if (matriz[i] == 2) return [true, 2]
+                }
+                ///
+                if (todasJogadasPossiveis(matriz, 2).length == 0) return [true, 1]
+                for (let i = 0; i < n; i++) {
+                    if (matriz[i] == 1) return [true, 1]
+                }
+            }
+            if (todasJogadasPossiveis(matriz, 2).length == 0) return [true, 1]
+            for (let i = 0; i < n; i++) {
+                if (matriz[i] == 1) return [true, 1]
+            }
+            ///
+            if (todasJogadasPossiveis(matriz, 1).length == 0) return [true, 2]
+            for (let i = n ** 2 - n; i < n ** 2; i++) {
+                if (matriz[i] == 2) return [true, 2]
+            }
+            return [false, 0]
+        }
+        function fazerJogada(matriz, jogada) {
+            const n = Math.sqrt(matriz.length)
+
+            const posi = parseInt(jogada[0])
+            const lance = parseInt(jogada[1])
+            const jog = parseInt(jogada[2])
+            if (jogadaPossivel(matriz, posi, lance, jog)) {
+                matriz[posi] = 0
+                if (jog == 1) {
+                    if (lance == 1) {
+                        matriz[posi - (n + 1)] = 1
+                    } else if (lance == 2) {
+                        matriz[posi - n] = 1
+                    } else if (lance == 3) {
+                        matriz[posi - (n - 1)] = 1
+                    }
+                } else if (jog == 2) {
+                    if (lance == 1) {
+                        matriz[posi + (n - 1)] = 2
+                    } else if (lance == 2) {
+                        matriz[posi + n] = 2
+                    } else if (lance == 3) {
+                        matriz[posi + (n + 1)] = 2
+                    }
+                }
+            }
+            return matriz
+        }
+        function jogadaPossivel(matriz, posi, lance, jog) {
+            const n = Math.sqrt(matriz.length)
+            const pos = parseInt(posi)
+            if (matriz[pos] == jog) {
+                if (lance == 1) {
+                    if (jog == 1 && (pos - (n + 1) >= 0)) {
+                        if (matriz[pos - (n + 1)] == 2 && (pos % n != 0)) {
+                            return true
+                        } else return false
+                    }
+                    if (jog == 2 && (pos + (n - 1) <= matriz.length - 1)) {
+                        if (matriz[pos + (n - 1)] == 1 && (pos % n != 0)) {
+                            return true
+                        } else return false
+                    }
+                }
+                if (lance == 2) {
+                    if (jog == 1 && (pos - (n) >= 0)) {
+                        if (matriz[pos - (n)] == 0) {
+                            return true
+                        } else return false
+                    }
+                    if (jog == 2 && (pos + (n) <= matriz.length - 1)) {
+                        if (matriz[pos + n] == 0) {
+                            return true
+                        } else return false
+                    }
+                }
+                if (lance == 3) {
+                    if (jog == 1 && (pos - (n - 1) >= 0)) {
+                        if (matriz[pos - (n - 1)] == 2 && ((pos + 1) % n != 0)) {
+                            return true
+                        } else return false
+                    }
+                    if (jog == 2 && (pos + (n + 1) <= matriz.length - 1)) {
+                        if (matriz[pos + (n + 1)] == 1 && ((pos + 1) % n != 0)) {
+                            return true
+                        } else return false
+                    }
+                }
+            } else return false
+            return false
+        }
+        function todasJogadasPossiveis(matriz, jog) {
+            const n = Math.sqrt(matriz.length)
+            var jogadaspossiveis = []
+
+            for (let pos in matriz) {
+                if (matriz[pos] == jog) {
+                    for (let lance = 1; lance <= 3; lance++) {
+                        if (jogadaPossivel(matriz, pos, lance, jog)) jogadaspossiveis.push([pos, lance, jog])
+                    }
+                }
+            }
+            return jogadaspossiveis
+        }
+        function listaChance(lista) {
+            var listaAux = []
+            for (let i in lista) {
+                listaAux.push(100 / lista.length)
+            }
+            return listaAux
+        }
+        caixaDeFosforo = function (diagram, jogador, jogadas = undefined, chance = undefined) {
+            this.diagram = diagram.slice()
+            this.jogador = jogador
+            this.jogadas = jogadas
+            this.chance = chance
+            this.jogFeita = -1
+            if (!this.jogadas) this.jogadas = todasJogadasPossiveis(diagram, jogador)
+            if (!this.chance) this.chance = listaChance(this.jogadas)
+
+            this.jogada = function (jogadaRand = 'a') {
+                if (jogadaRand.toLowerCase() == 'aleatoria' || jogadaRand.toLowerCase() == 'aleatória') return this.jogadas[~~(Math.random() * this.jogadas.length)]
+
+                const random = Math.random() * 100
+                var contador = 0
+                for (let i in this.chance) {
+                    //console.log(`${contador} < ${random} && ${random} < ${contador+this.chance[i]}`)
+                    if (contador < random && random < contador + this.chance[i]) {
+                        this.jogFeita = i
+                        return this.jogadas[i]
+                    }
+                    contador += this.chance[i]
+                }
+                ///// CASO FALHE
+                return this.jogadas[~~(Math.random() * this.jogadas.length)]
+            }
+
+            this.tirarOUAddPalitos = function (venceu, index = 0.1) {
+                if (this.jogFeita != -1) {
+                    if (venceu && this.chance.length != 1) {
+                        if (this.chance[this.jogFeita] * (1 + index) < 100 && this.chance.every((el, i) => { if (i == this.jogFeita) { return true } return el * (100 - this.chance[this.jogFeita] * (1 + index)) / (100 - this.chance[this.jogFeita]) > 0 })) {
+                            for (let i in this.chance) {
+                                if (i != this.jogFeita) this.chance[i] *= (100 - this.chance[this.jogFeita] * (1 + index)) / (100 - this.chance[this.jogFeita])
+                            }
+                            this.chance[this.jogFeita] *= (1 + index)
+                        }
+                    } else if (!venceu && this.chance.length != 1) {
+                        if (this.chance[this.jogFeita] * (1 - index) > 0 && this.chance.every((el, i) => { if (i == this.jogFeita) { return true } return el * (100 - this.chance[this.jogFeita] * (1 - index)) / (100 - this.chance[this.jogFeita]) < 100 })) {
+                            for (let i in this.chance) {
+                                if (i != this.jogFeita) this.chance[i] *= (100 - this.chance[this.jogFeita] * (1 - index)) / (100 - this.chance[this.jogFeita])
+                            }
+                            this.chance[this.jogFeita] *= (1 - index)
+                        }
+
+
+                    }
+                }
+                this.jogFeita = -1
+            }
+
+        }
+        function sleep(milliseconds) {
+            var start = new Date().getTime();
+            for (var i = 0; i < 1e7; i++) {
+                if ((new Date().getTime() - start) > milliseconds) {
+                    break;
+                }
+            }
+        }
+
+
+
+        var contRound = 1
+        var contjog1 = 0
+        var contjog2 = 0
+        objetoAtual = null;
+        var butPress = undefined;
+        var listjogs = []
+        var qmVence = [false, 0]
+        var randooo = Math.random()
+
+        canvas.onmousedown = function () {
+            if (butJogNov.checkMouseOver(posX, posY) && qmVence[0]) {
+                sleep(500)
+                m = matrizInicial(4)
+                for (let k in buttons) {
+                    buttons[k].color = 'rgba(150,150,255,1)'
+                    if (buttons[k].fontColor == 'blue' && m[k] == 2) buttons[k].fontColor = 'white'
+                    if (buttons[k].fontColor == 'blue' && m[k] == 1) buttons[k].fontColor = 'black'
+                }
+                atualizarTab(m)
+                contRound = 1
+                qmVence = [false, 0]
+                randooo = Math.random()
+            }
+            for (let i in buttons) {
+                if (buttons[i].checkMouseOver(posX, posY)) {
+
+                    for (let k in buttons) {
+                        buttons[k].color = 'rgba(150,150,255,1)'
+                        if (buttons[k].fontColor == 'blue' && m[k] == 2) buttons[k].fontColor = 'white'
+                        if (buttons[k].fontColor == 'blue' && m[k] == 1) buttons[k].fontColor = 'black'
+                    }
+
+                    if (contRound % 2 == 0) {
+                        if (m[i] == 2) {
+                            butPress = i
+                            listjogs = todasJogadasPossiveisADAP(m, 2)
+                            for (let k in buttons) {
+                                buttons[k].color = 'rgba(150,150,255,1)'
+                            }
+                            for (let j in listjogs) {
+                                if (listjogs[j][0] == butPress) {
+                                    buttons[listjogs[j][1]].color = 'white'
+                                    buttons[listjogs[j][1]].fontColor = 'blue'
+                                }
+                            }
+                        } else {
+                            if (listjogs.some((el) => arrayEqual([butPress, i, 2], el)) && contRound % 2 == 0 && !qmVence[0]) {
+                                m = fazerJogadaADAP(m, butPress, i, 2)
+                                atualizarTab(m)
+                                butPress = undefined
+                                contRound++
+                                qmVence = jogadorVenceu(m, 2)
+                                if (qmVence[1] == 2) contjog2++
+                                for (let k in buttons) {
+                                    buttons[k].color = 'rgba(150,150,255,1)'
+                                    if (buttons[k].fontColor == 'blue' && m[k] == 2) buttons[k].fontColor = 'white'
+                                    if (buttons[k].fontColor == 'blue' && m[k] == 1) buttons[k].fontColor = 'black'
+                                }
+                            } else if (m[i] == 2) {
+                                butPress = i
+                                for (let k in buttons) {
+                                    buttons[k].color = 'rgba(150,150,255,1)'
+                                }
+                                listjogs = todasJogadasPossiveisADAP(m, 2)
+                                for (let j in listjogs) {
+                                    if (listjogs[j][0] == butPress) {
+                                        buttons[listjogs[j][1]].color = 'white'
+                                        buttons[listjogs[j][1]].fontColor = 'blue'
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        if (!butPress && m[i] == 1) {
+                            butPress = i
+                            listjogs = todasJogadasPossiveisADAP(m, 1)
+                            for (let k in buttons) {
+                                buttons[k].color = 'rgba(150,150,255,1)'
+                            }
+                            for (let j in listjogs) {
+                                if (listjogs[j][0] == butPress) {
+                                    buttons[listjogs[j][1]].color = 'white'
+                                    buttons[listjogs[j][1]].fontColor = 'blue'
+                                }
+                            }
+                        } else {
+                            if (listjogs.some((el) => arrayEqual([butPress, i, 1], el)) && contRound % 2 == 1 && !qmVence[0]) {
+                                m = fazerJogadaADAP(m, butPress, i, 1)
+                                atualizarTab(m)
+                                butPress = undefined
+                                contRound++
+                                qmVence = jogadorVenceu(m, 1)
+                                if (qmVence[1] == 1) contjog1++
+                                for (let k in buttons) {
+                                    buttons[k].color = 'rgba(150,150,255,1)'
+                                    if (buttons[k].fontColor == 'blue' && m[k] == 2) buttons[k].fontColor = 'white'
+                                    if (buttons[k].fontColor == 'blue' && m[k] == 1) buttons[k].fontColor = 'black'
+                                }
+                            } else if (m[i] == 1) {
+                                butPress = i
+                                for (let k in buttons) {
+                                    buttons[k].color = 'rgba(150,150,255,1)'
+                                }
+                                listjogs = todasJogadasPossiveisADAP(m, 1)
+                                for (let j in listjogs) {
+                                    if (listjogs[j][0] == butPress) {
+                                        buttons[listjogs[j][1]].color = 'white'
+                                        buttons[listjogs[j][1]].fontColor = 'blue'
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+                }
+
+            }
+
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            for (let i in objMoveis) {
+                if ((objMoveis[i].x < posX && objMoveis[i].w + objMoveis[i].x > posX && objMoveis[i].y < posY && objMoveis[i].h + objMoveis[i].y > posY)) {
+                    objetoAtual = objMoveis[i]
+                    inicioY = posY - objMoveis[i].y
+                    inicioX = posX - objMoveis[i].x
+                    break;
+                }
+            }
+        }
+        canvas.onmousemove = function () {
+            if (objetoAtual != null) {
+                objetoAtual.x = posX - inicioX
+                objetoAtual.y = posY - inicioY
+            }
+        }
+        canvas.onmouseup = function () {
+            objetoAtual = null;
+        }
+
+        render = function () {
+            c.fillStyle = standart
+            c.clearRect(0, 0, canvas.width, canvas.height)
+            for (let i in objMoveis) {
+                objMoveis[i].show(posX, posY)
+            }
+            pan.show(posX, posY)
+            c.fillStyle = 'rgba(150,50,130,1)'
+            c.font = ch * 80 / 900 + 'px monospace'
+            c.fillText('Jogo do Malaga', cw / 2, chU * 80)
+            c.fillStyle = 'black'
+            c.font = ch * 30 / 900 + 'px monospace'
+            if (!qmVence[0]) {
+                c.fillText('O jogador de pretas começa.', cw / 2, ch * 0.88)
+                c.fillText(contRound % 2 == 0 ? 'É a vez do branco, clique em suas peças e escolha sua jogada.' : 'Agora é a vez do preto, clique em suas peças e escolha sua jogada', cw / 2, ch * 0.92)
+                c.fillText(`${contjog2} Brancas   X   Pretas ${contjog1}`, cw / 2, ch * 0.96)
+            }
+            if (qmVence[0]) {
+                butJogNov.show(posX, posY)
+                c.fillStyle = 'black'
+                c.font = ch * 50 / 1100 + 'px monospace'
+                if (qmVence[1] == 1) {
+                    if (0 < randooo && randooo < 0.3) { c.fillText('Pretas venceram, parabéns.', cw / 2, ch * 0.9) }
+                    if (0.3 < randooo && randooo < 0.61) c.fillText('Pretas venceram', cw / 2, ch * 0.9)
+                    if (0.61 < randooo && randooo < 0.85) c.fillText('Ponto das pretas', cw / 2, ch * 0.9)
+                    if (0.85 < randooo && randooo < 1) c.fillText('Pretas só pontuando', cw / 2, ch * 0.9)
+                } else if (qmVence[1] == 2) {
+                    if (0 < randooo && randooo < 0.3) { c.fillText('Brancas venceram, parabéns.', cw / 2, ch * 0.9) }
+                    if (0.3 < randooo && randooo < 0.61) c.fillText('Brancas venceram', cw / 2, ch * 0.9)
+                    if (0.61 < randooo && randooo < 0.85) c.fillText('Ponto das brancas', cw / 2, ch * 0.9)
+                    if (0.85 < randooo && randooo < 1) c.fillText('Ponto para as brancas', cw / 2, ch * 0.9)
+                }
+            }
+
+        }
+
+        update = function () {
+            requestAnimationFrame(update, c)
+            render()
+
+        }
+        // LOOP QUE MOVE E RENDERIZA
+
+        update();
+// ONDE TODA A MÁGICA AKONTECE
+
+
+    </script>
+</body>
+
+</html>

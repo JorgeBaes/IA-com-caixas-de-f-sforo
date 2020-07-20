@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Jogo do Malaga</title>
+
+    <link rel="stylesheet" type="text/css" href="css/pag_inicial.css">
+
+</head>
+
+<body style="text-align: center;">
+    <h1 style="font: oblique 32pt monospace">Demonstração do algoritmo do Malaga<br> <span style="font: normal 15pt Verdana; color: rgb(78, 4, 250)">Jorge Baes
+            </span><br><br>
+        <span style="font: normal 18pt Verdana; color: rgb(199, 96, 0); text-align: center;">Esta página tem como objetivo
+            demonstrar computacionalmente o algoritmo do computador de caixas de fósforo.
+        </span></h1>
+    <p style='font: normal 16pt Verdana; text-align: justify; max-width: 80%;padding-left: 10%; '>
+    Em seu livro <span style="color: rgb(0, 104, 196);">'Inteligência Artificial no Ensino. Como Construir Computadores que Se Comportam Como Humanos'</span>, 
+    Pedro Malagutti ensina a confeccionar uma inteligência artificial simples com caixas de fósforo.
+    Porém, este método possui uma limitação: conforme o jogo fica mais complexo, mais caixas de fósforos
+     são necessárias e precisa-se de muito mais tempo para as caixas de fósforo ficarem inteligentes.
+     Por isso, resolvi testar este método em um computador de circuitos integrados, que consegue armazenar 
+     muito mais informações do que um exército de caixas de fósforo, além do que consegue simular milhões de jogos
+     em apenas 1 segundo - facilitando o treinamento da inteligência artificial.<br><br>
+    O jogo é semelhante ao xadrez, o tabuleiro pode ser 3x3 ou 4x4 com posição inicial das peças do jogador 1 na última
+    fileira e o jogador 2 na primeira.
+    O jogo é feito de turnos, sendo que, em cada um, o jogador deve fazer um movimento legal com suas peças. Os movimentos
+    legais são: mover sua peça uma casa
+    para frente; e capturar uma peça adversária que esteja nas 1°casas diagonais (veja nas figuras abaixo). O jogo acaba quando: um jogador chegar com
+    uma peça sua no outro lado do tabuleiro
+    (sendo vencedor aquele que chegou ao lado oposto); ou quando um jogador capturar todas as peças adversárias(sendo
+    vencedor aquele que capturou); ou quando um jogador,
+    ao passar o turno, faz com que o outro fique travado, ou seja, não tenha movimentos legais para fazer(sendo o perdedor aquele que ficou travado).<br><br>
+    Para jogar, basta clicar em suas peças, mostrando as jogadas possíveis de cada peça; e depois basta clicar na jogada escolhida.
+    Após sua jogada, o computador fará sua jogada, e assim segue o jogo.
+    </p>
+    <div style="display: flex; justify-content: center;" ><img src="imagens/tutorial1.jpg" style="width: 10%; margin: 10px;"> <img src="imagens/tutorial2.jpg"
+        style="width: 10%; margin: 10px;"><img src="imagens/tutorial3.jpg" style="width: 10%; margin: 10px;"></div>
+
+
+    <br><br>
+    <span style='font: normal 26pt Verdana; text-align: center;'>O algoritmo funciona da seguinte maneira:</span>
+    <ol style="padding-left: 20%;max-width: 60%; list-style: none;">
+        <li style='font: normal 16pt Verdana;text-align: justify;'><strong style="font: bold 18pt Verdana;">1°</strong>Se a posição do tabuleiro é nova ao computador, este armazena a
+        posição nova encontrada, todas as jogadas possíveis da posição, e estabelece a probabilidade de cada jogada
+        ocorrer(que inicialmente é igual para todas). Depois, escolhe um movimento, baseado na probabilidade de cada um.</li>
+        <br><li style='font: normal 16pt Verdana;text-align: justify; '><strong style="font: bold 18pt Verdana;">2°</strong>Se a posição do tabuleiro ja foi registrada pelo passo 1, o computador escolhe uma jogada baseada na probabilidade de cada movimento possível.<br></li>
+        <br><li style='font: normal 16pt Verdana;text-align: justify;'><strong style="font: bold 18pt Verdana;">3°</strong>Ao final do jogo, se o computador venceu, a probabilidade de cada
+        movimento realizado pelo Pc na partida ocorrer é aumentada.
+        Porém, se o computador perder, a probabilidade de cada movimento realizado pelo Pc na partida ocorrer é diminuida.</li><br>
+        <li style='font: normal 16pt Verdana;text-align: justify;'>Dessa forma, quanto mais jogos forem jogados pelo computador, ele optará por movimentos vencedores,
+            e evitará os movimentos perdedores. Para treinar o computador e deixá-lo inteligente, criei um algoritmo que simula jogos. O adversário do computador é ele mesmo,
+            sendo que um jogador recebe o treinamento, e o outro realiza jogadas aleatoriamente.
+        </li>
+    </ol>
+    
+    <p style='font: normal 26pt Verdana; text-align: center;'>
+        Há 3 modos de jogo:</p>
+        <ol style="padding-left: 20%;max-width: 60%; list-style: none;">
+            <li style='font: normal 16pt Verdana;text-align: justify;'><strong style="font: bold 18pt Verdana;">Modo 3x3 Treino - </strong>
+                Neste modo o computador começa do 0, sem nenhum treino prévio. Para torná-lo inteligente, você terá de jogar contra ele.
+                Com o tempo ele passará a ficar inteligente, mas isso pode levar uns 20 jogos para você perceber isto.                
+            </li>
+            <br>
+            <li style='font: normal 16pt Verdana;text-align: justify; '><strong style="font: bold 18pt Verdana;">Modo 3x3 Inteligente - </strong>
+                Neste modo o computador não começa do 0, já está treinado e inteligente. Para este modo, o computador jogou dez mil partidas 
+                contra si mesmo. Então, se você não tiver paciência para treinar o pc no modo treino, neste modo ele já é inteligente. Boa sorte!
+            </li>
+            <br>
+            <li style='font: normal 16pt Verdana;text-align: justify;'><strong style="font: bold 18pt Verdana;">Modo 4x4 Inteligente -</strong>
+                Neste modo o computador ja começa inteligente. Como no tabuleiro 4x4 existem 4583 posições diferentes, para deixar o pc inteligentíssimo, foi preciso simular dez milhões de partidas do computador contra si mesmo.
+            </li>
+            <br>
+            <li style='font: normal 16pt Verdana;text-align: justify;'><strong style="font: bold 18pt Verdana;">Modo um contra o outro 3x3 e 4x4 </strong>
+                Neste modo jogue contra um amigo seu nos tabuleiros 3x3 ou 4x4, e veja quem se sai melhor.            
+            </li>
+            <br>
+            <li style='font: normal 16pt Verdana;text-align: justify;'>
+                Como existem mais de 4000 posições no 4x4, não há o modo 4x4 treino, porque levaria uma eternidade para jogar milhões de jogos com o computador
+                e deixá-lo inteligente. Mas, no 3x3 esse modo é possível, já que há menos de 40 posições diferentes no tabuleiro menor.
+            </li>
+        </ol>
+    
+
+    
+
+    <section class="flex">
+        <div>
+            <p>Modo 3x3 Inteligente</p>
+            <a href="htmls\JogoMalaga3x3.html">
+                <img src="imagens\3x3int.jpg" alt="">
+            </a>
+        </div>
+        <div>
+            <p>Modo 3x3 Treino</p>
+            <a href="htmls\JogoMalaga3x3Treino.html">
+                <img src="imagens\3x3treino.jpg" alt="">
+            </a>
+        </div>        
+        <div>
+            <p>Modo um contra o outro 3x3</p>
+            <a href="htmls\JogoDoMalaga1vs13x3.html">
+                <img src="imagens\3x3int1vs1.jpg" alt="">
+            </a>
+        </div>
+        <div>
+            <p>Modo um contra o outro 4x4</p>
+            <a href="htmls\JogoDoMalaga1vs14x4.html">
+                <img src="imagens\4x4int1vs1.jpg" alt="">
+            </a>
+        </div>
+        <div>
+            <p>Modo 4x4 Inteligente</p>
+            <a href="htmls\JogoDoMalaga4x4.html">
+                <img src="imagens\4x4int.jpg" alt="">
+            </a>
+        </div>
+    </section>
+
+</body>
+
+</html>
